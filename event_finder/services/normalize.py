@@ -23,10 +23,7 @@ def normalize_url(url: str) -> str:
     
     # Tracking parameters to remove
     tracking_params = {
-        'utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content',
-        'fbclid', 'gclid', 'msclkid', 'twclid', 'li_fat_id',
-        '_ga', '_gid', '_gac', 'mc_cid', 'mc_eid',
-        'ref', 'referrer', 'source', 'campaign'
+        'srsltid'
     }
     
     # Parse query parameters
@@ -77,7 +74,7 @@ def get_domain_from_url(url: str) -> str:
         # Remove 'www.' prefix if present
         if domain.startswith('www.'):
             domain = domain[4:]
-            
+        
         return domain
     except Exception:
         return ""
@@ -85,13 +82,13 @@ def get_domain_from_url(url: str) -> str:
 
 def parse_date(date_str: Union[str, datetime, None]) -> Optional[datetime]:
     """
-    Parse date string into datetime object with multiple format support.
+    Parse date string into date object with multiple format support.
     
     Args:
-        date_str: Date string, datetime object, or None
+        date_str: Date string, date object, or None
         
     Returns:
-        Parsed datetime object or None if parsing fails
+        Parsed date object or None if parsing fails
     """
     if not date_str:
         return None
@@ -147,34 +144,3 @@ def parse_date(date_str: Union[str, datetime, None]) -> Optional[datetime]:
                 continue
     
     return None
-
-
-def normalize_event_name(name: str) -> str:
-    """
-    Normalize event name for deduplication comparison.
-    
-    Args:
-        name: Event name to normalize
-        
-    Returns:
-        Normalized event name
-    """
-    if not name:
-        return ""
-    
-    # Convert to lowercase and strip whitespace
-    normalized = name.lower().strip()
-    
-    # Remove common prefixes/suffixes
-    prefixes_to_remove = ['event:', 'webinar:', 'conference:', 'workshop:']
-    for prefix in prefixes_to_remove:
-        if normalized.startswith(prefix):
-            normalized = normalized[len(prefix):].strip()
-    
-    # Remove extra whitespace
-    normalized = re.sub(r'\s+', ' ', normalized)
-    
-    # Remove special characters for comparison
-    normalized = re.sub(r'[^\w\s]', '', normalized)
-    
-    return normalized.strip()
