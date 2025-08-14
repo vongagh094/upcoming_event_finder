@@ -74,7 +74,6 @@ class FirecrawlClient:
             
             events = response.data.get("events", [])
             results = ListEvent.model_validate({"events": events})
-            print(results)
             logger.info(f"Batch extraction completed: {len(results.events)} events found")
            
             return ListEvent(events=results.events)

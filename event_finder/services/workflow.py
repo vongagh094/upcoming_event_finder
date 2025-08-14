@@ -6,7 +6,6 @@ from event_finder.schemas import EventsResponse
 from event_finder.core.models import Event, EventType, ListEvent
 from event_finder.services.serper import get_serper_client
 from event_finder.services.firecrawl import extract_urls_content
-from event_finder.services.open_ai import get_openai_client
 from event_finder.services.normalize import parse_date, normalize_url, get_domain_from_url
 from event_finder.core.utils import sort_events_by_date, build_search_queries
 from event_finder.config.lists import EXCLUDE_DOMAINS
@@ -44,7 +43,6 @@ async def extract_urls(batch_urls: List[str], speaker: str) -> ListEvent:
     # Merge all successful results into one ListEvent with error handling
 
     merged_events = []
-    print(f"successful_results: {successful_results}")
     for result in successful_results:
         try:
             if result and hasattr(result, 'events') and result.events:
@@ -58,7 +56,6 @@ async def extract_urls(batch_urls: List[str], speaker: str) -> ListEvent:
 
 def deduplicate_and_filter_past_events(events: List[Event]) -> List[Event]:
 	"""Deduplicate events by date and event_name."""
-	from datetime import timezone
 	
 	deduplicated_events = []
 	seen_events = set()  # Store tuples of (event_name, date) for deduplication
@@ -95,10 +92,8 @@ async def find_upcoming_events(user_query: str, filter_event_type: Optional[str]
 	Includes robust retries and error handling for DDG and Firecrawl.
 	"""
 	# get dependencies
-	# 1) DuckDuckGo search with basic retry
 	serper_client = get_serper_client()
-	openai_client = get_openai_client()
-	print(f"OpenAI client: {openai_client}")
+
 
 	queries = build_search_queries(user_query)
 	search_results = await serper_client.batch_search(queries)
@@ -114,7 +109,6 @@ async def find_upcoming_events(user_query: str, filter_event_type: Optional[str]
 		if domain not in EXCLUDE_DOMAINS and domain not in existed_domains:
 			existed_domains.append(domain)
 			urls.append(normalized_url)
-	print(f"urls: {urls}")
 	
 	if len(urls) == 0:
 		return EventsResponse(speaker=user_query, count=0, events=[])
@@ -122,22 +116,9 @@ async def find_upcoming_events(user_query: str, filter_event_type: Optional[str]
 	# 2) Firecrawl scrape with retry (async)
 	scrape_results = await extract_urls(urls[:TOP_N], user_query)
 
-	print(f"scrape_results: {scrape_results}")
-	
-	# 3) Build LLM prompt and parse structured events
 	if len(scrape_results.events) == 0:
 		return EventsResponse(speaker=user_query, count=0, events=[])
-	
 
-
-	# prompt = (
-	# 	"Extract a JSON list of upcoming events from the following pages. Use fields: "
-	# 	"event_name, date, location{name,address,city,country}, url, speakers[list of strings], event_type in {in_person, online, N/A}.\n"
-	# 	"Only include real events.\n\n" + data_str
-	# )
-	# event_list: ListEvent = await openai_client.parse_structured_output(prompt)
-	# events: List[Event] = event_list.events if event_list and event_list.events else []
-	
 	# 4) Normalize and filter
 	filtered: List[Event] = []
 	for ev in scrape_results.events:
