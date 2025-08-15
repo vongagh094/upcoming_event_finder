@@ -1,12 +1,3 @@
-I'll quickly scan the config to list required environment variables (.env keys), then provide a concise README with Poetry setup and usage.
-Read file: event_finder/config/settings.py
-
-Read file: event_finder/main.py
-Read file: event_finder/services/workflow.py
-### Project: Upcoming Events Finder
-
-A FastAPI service that searches the web for a given speaker/name, scrapes relevant pages with Firecrawl, extracts structured event data with an LLM, normalizes and filters it, then returns upcoming events.
-
 ### Prerequisites
 - Python 3.11
 - Poetry
