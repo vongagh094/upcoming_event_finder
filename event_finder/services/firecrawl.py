@@ -47,7 +47,7 @@ class FirecrawlClient:
             urls: List of URLs to scrape.
             
         Returns:
-            List of ExtractedContent objects.
+            List of ListEvent objects.
         """
         results: ListEvent = []
         
@@ -92,7 +92,7 @@ async def extract_urls_content(urls: List[str], speaker: str) -> ListEvent:
         urls: List of URLs to extract content from.
         
     Returns:
-        List of ExtractedContent objects.
+        List of ListEvent objects.
     """
     client = get_firecrawl_client()
     results = client._batch_extract(urls, speaker)
