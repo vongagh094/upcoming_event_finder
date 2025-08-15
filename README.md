@@ -23,12 +23,10 @@ A FastAPI service that searches the web for a given speaker/name, scrapes releva
 
 - Required:
   - `FIRECRAWL_API_KEY`: Firecrawl API key
-  - `OPENAI_API_KEY`: OpenAI API key (used by the local LLM client)
   - `SERPER_API_KEY`: Serper API key (web search)
 - Optional (defaults in `event_finder/config/settings.py`):
-  - `TOP_N` (default: 20)
-  - `FIRECRAWL_TIMEOUT` (seconds, default: 30)
-  - `MAX_CONCURRENCY` (default: 8)
+  - `TOP_N_URLS` (default: 20)
+  - `EXTRACT_BATCH_SIZE` (default: 5)
 
 Example `.env`:
 ```
