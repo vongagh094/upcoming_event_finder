@@ -9,15 +9,15 @@ from event_finder.services.firecrawl import extract_urls_content
 from event_finder.services.normalize import parse_date, normalize_url, get_domain_from_url
 from event_finder.core.utils import sort_events_by_date, build_search_queries
 from event_finder.config.lists import EXCLUDE_DOMAINS
-from event_finder.config.settings import TOP_N
+from event_finder.config.settings import TOP_N_URLS, EXTRACT_BATCH_SIZE
 
 logger = logging.getLogger(__name__)
 
 
-async def extract_urls(batch_urls: List[str], speaker: str) -> ListEvent:
+async def extract_events_from_urls(batch_urls: List[str], speaker: str) -> ListEvent:
     import asyncio
-    # Split URLs into batches of 5
-    batch_size = 5
+    # Split URLs into batches of EXTRACT_BATCH_SIZE
+    batch_size = EXTRACT_BATCH_SIZE
     batches = [batch_urls[i:i + batch_size] for i in range(0, len(batch_urls), batch_size)]
     
     # Process all batches concurrently
@@ -40,8 +40,7 @@ async def extract_urls(batch_urls: List[str], speaker: str) -> ListEvent:
             # Continue to next batch instead of failing entirely
             continue
     
-    # Merge all successful results into one ListEvent with error handling
-
+    # Merge all successful results into one ListEvent
     merged_events = []
     for result in successful_results:
         try:
@@ -94,7 +93,6 @@ async def find_upcoming_events(user_query: str, filter_event_type: Optional[str]
 	# get dependencies
 	serper_client = get_serper_client()
 
-
 	queries = build_search_queries(user_query)
 	search_results = await serper_client.batch_search(queries)
 
@@ -111,15 +109,15 @@ async def find_upcoming_events(user_query: str, filter_event_type: Optional[str]
 			urls.append(normalized_url)
 	
 	if len(urls) == 0:
-		return EventsResponse(speaker=user_query, count=0, events=[])
+		return EventsResponse(events=[])
 	
-	# 2) Firecrawl scrape with retry (async)
-	scrape_results = await extract_urls(urls[:TOP_N], user_query)
+	# Firecrawl scrape with retry (async)
+	scrape_results = await extract_events_from_urls(urls[:TOP_N_URLS], user_query)
 
 	if len(scrape_results.events) == 0:
-		return EventsResponse(speaker=user_query, count=0, events=[])
+		return EventsResponse(events=[])
 
-	# 4) Normalize and filter
+	# Normalize and filter
 	filtered: List[Event] = []
 	for ev in scrape_results.events:
 		# Normalize date
@@ -131,16 +129,16 @@ async def find_upcoming_events(user_query: str, filter_event_type: Optional[str]
 				etype = EventType(filter_event_type)
 			except Exception:
 				etype = None
-			if etype and ev.event_type != etype:
+			if etype and ev.event_type != EventType.NOT_AVAILABLE and ev.event_type != etype:
 				continue
 		filtered.append(ev)
+
 	# deduplicate events by urls
 	deduplicated_events = deduplicate_and_filter_past_events(filtered)
-	# 5) Sort
+
+	# Sort
 	sorted_events = sort_events_by_date(deduplicated_events)
 	
 	return EventsResponse(
-		speaker=user_query,
-		count=len(sorted_events),
 		events=sorted_events
-	) 
+	)

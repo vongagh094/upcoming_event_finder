@@ -1,4 +1,3 @@
-import re
 from urllib.parse import urlparse, parse_qs, urlencode, urlunparse
 from datetime import datetime
 from typing import Optional, Union
@@ -95,52 +94,12 @@ def parse_date(date_str: Union[str, datetime, None]) -> Optional[datetime]:
         
     if isinstance(date_str, datetime):
         return date_str
-        
-    if not isinstance(date_str, str):
-        return None
-    
-    # Clean the date string
-    date_str = date_str.strip()
-    if not date_str:
-        return None
-    
+
     try:
-        # Use dateutil parser for flexible date parsing
         parsed_date = dateutil.parser.parse(date_str, fuzzy=True)
         return parsed_date
     except (ValueError, TypeError, dateutil.parser.ParserError):
         pass
     
-    # Try common date patterns with regex
-    date_patterns = [
-        # ISO format: 2024-01-15, 2024/01/15
-        r'(\d{4})[/-](\d{1,2})[/-](\d{1,2})',
-        # US format: 01/15/2024, 1/15/24
-        r'(\d{1,2})[/-](\d{1,2})[/-](\d{2,4})',
-        # European format: 15/01/2024, 15.01.2024
-        r'(\d{1,2})[/.-](\d{1,2})[/.-](\d{2,4})',
-    ]
-    
-    for pattern in date_patterns:
-        match = re.search(pattern, date_str)
-        if match:
-            try:
-                groups = match.groups()
-                if len(groups) == 3:
-                    # Try different interpretations based on pattern
-                    if pattern.startswith(r'(\d{4})'):  # ISO format
-                        year, month, day = int(groups[0]), int(groups[1]), int(groups[2])
-                    elif pattern.startswith(r'(\d{1,2})[/-](\d{1,2})[/-](\d{2,4})'):  # US format
-                        month, day, year = int(groups[0]), int(groups[1]), int(groups[2])
-                        if year < 100:  # Handle 2-digit years
-                            year += 2000 if year < 50 else 1900
-                    else:  # European format
-                        day, month, year = int(groups[0]), int(groups[1]), int(groups[2])
-                        if year < 100:  # Handle 2-digit years
-                            year += 2000 if year < 50 else 1900
-                    
-                    return datetime(year, month, day)
-            except (ValueError, TypeError):
-                continue
     
     return None

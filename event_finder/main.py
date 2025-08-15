@@ -28,8 +28,23 @@ async def get_events(
 	event_type: Optional[Literal["in_person", "online"]] = Query(None, description="Filter by event type"),
 ):
 	"""
-	Search for events by name with optional event type filtering.
+	Search for events by name, with optional event type filtering.  
+
+	**Parameters**:  
+	- **name** (str): Person or speaker name to search for.  
+	- **event_type** (str, optional): Filter by event type.  
+	Allowed values: `"in_person"` or `"online"`.  
+
+	**Returns**:  
+	List[dict]: A list of events, where each event contains:  
+	- **event_name** (str): Name of the event.  
+	- **date** (str): Date of the event.  
+	- **location** (str): Location of the event.  
+	- **url** (str): URL of the event.  
+	- **speakers** (List[str]): List of speakers.  
+	- **event_type** (str): Type of the event.  
 	"""
+
 	if not name or not name.strip():
 		raise HTTPException(status_code=400, detail="Parameter 'name' is required")
 	if event_type and event_type not in ["in_person", "online"]:
@@ -39,5 +54,3 @@ async def get_events(
 		return response
 	except Exception as e:
 		raise HTTPException(status_code=500, detail=str(e))
-
-

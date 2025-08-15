@@ -5,11 +5,11 @@ This service handles batch scraping of URLs using the Firecrawl API,
 with proper error handling and timeout management.
 """
 import logging
-from typing import List, Optional, Dict
+from typing import List
 from event_finder.core.models import ListEvent
 from firecrawl import FirecrawlApp
 from event_finder.config.lists import extract_schema
-from event_finder.config.settings import FIRECRAWL_API_KEY, FIRECRAWL_TIMEOUT
+from event_finder.config.settings import FIRECRAWL_API_KEY
 
 logger = logging.getLogger(__name__)
 
@@ -18,20 +18,14 @@ _firecrawl_client = None
 class FirecrawlClient:
     """Client for Firecrawl batch URL extraction."""
     
-    def __init__(self, api_key: Optional[str] = None, timeout: int = FIRECRAWL_TIMEOUT):
+    def __init__(self):
         """
         Initialize Firecrawl client.
         
         Args:
-            api_key: Firecrawl API key. If None, uses FIRECRAWL_API_KEY from settings.
             timeout: Request timeout in seconds.
         """
-        if api_key is None:
-            self.api_key = str(FIRECRAWL_API_KEY)
-        else:
-            self.api_key = str(api_key)
-        
-        self.timeout = timeout
+        self.api_key = str(FIRECRAWL_API_KEY)
         self.client = None
         
         if not self.api_key or self.api_key == "":

@@ -1,7 +1,7 @@
 import requests
 import logging
 from typing import List, Literal
-from event_finder.config.settings import SERPER_API_KEY, TOP_N
+from event_finder.config.settings import SERPER_API_KEY, TOP_N_URLS
 from event_finder.core.models import SerperSearchResults, SerperSearchResult
 
 logger = logging.getLogger(__name__)
@@ -34,7 +34,7 @@ class SerperSearchService:
         Perform multiple searches in one request.
         Returns a list of result lists (one per query).
         """
-        max_results = TOP_N
+        max_results = TOP_N_URLS
         payload = [{"q": q, "num": max_results} for q in queries]
         try:
             resp = requests.post(

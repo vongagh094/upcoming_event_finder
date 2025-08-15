@@ -26,13 +26,12 @@ EXCLUDE_DOMAINS = {
 }
 
 
-
 # Search query templates for DuckDuckGo
 QUERY_TEMPLATES = [
-    '"{}" upcoming event 2025',
+    '"{}" upcoming events 2025',
     '"{}" keynote conference',
     '"{}" webinar workshop',
-    '"{}" speaking event',
+    '"{}" speaking events',
     'site:eventbrite.com "{}"',
     'site:meetup.com "{}"'
 ]

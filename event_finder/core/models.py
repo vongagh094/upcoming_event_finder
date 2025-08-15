@@ -23,7 +23,6 @@ class Event(BaseModel):
     url: Optional[str] = "N/A"
     speakers: Optional[List[str]] = []
     event_type: EventType = EventType.NOT_AVAILABLE
-    source: Optional[str] = "N/A"
     event_name: Optional[str] = "N/A"
     date: Optional[datetime] = None
     location: Optional[Location] = None
