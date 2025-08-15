@@ -18,6 +18,10 @@ async def extract_events_from_urls(batch_urls: List[str], speaker: str) -> ListE
     import asyncio
     # Split URLs into batches of EXTRACT_BATCH_SIZE
     batch_size = EXTRACT_BATCH_SIZE
+    if batch_size > 10:
+        batch_size = 10
+        logger.warning(f"Batch size is too large, setting to 10")
+
     batches = [batch_urls[i:i + batch_size] for i in range(0, len(batch_urls), batch_size)]
     
     # Process all batches concurrently
