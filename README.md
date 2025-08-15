@@ -31,11 +31,7 @@ A FastAPI service that searches the web for a given speaker/name, scrapes releva
 Example `.env`:
 ```
 FIRECRAWL_API_KEY=your_firecrawl_key
-OPENAI_API_KEY=your_openai_key
 SERPER_API_KEY=your_serper_key
-TOP_N=20
-FIRECRAWL_TIMEOUT=30
-MAX_CONCURRENCY=8
 ```
 
 ### Run the API
